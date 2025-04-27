@@ -1,0 +1,23 @@
+﻿# Visual Studio
+.vs/
+x64/
+x86/
+Debug/
+Release/
+*.sdf
+*.opensdf
+*.suo
+*.user
+*.filters
+*.log
+*.tlog
+*.ilk
+*.pdb
+*.exe
+*.dll
+*.obj
+*.ipch
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
