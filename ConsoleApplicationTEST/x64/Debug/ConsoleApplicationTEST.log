@@ -1,0 +1,5 @@
+﻿  ConsoleApplicationTEST.cpp
+C:\Users\Admn\source\repos\ConsoleApplicationTEST-backup\packages\Aspose.Words.Cpp.25.3.0\build\native\include\Aspose.Words.Cpp\deprecated_header_warning.h(4): warning : Aspose.Words.Cpp/Model/... headers is deprecated. Use Aspose.Words.Cpp/... instead.
+  ConsoleApplicationTEST.vcxproj -> C:\Users\Admn\source\repos\ConsoleApplicationTEST-backup\x64\Debug\ConsoleApplicationTEST.exe
+  "pwsh.exe" не является внутренней или внешней
+  командой, исполняемой программой или пакетным файлом.
