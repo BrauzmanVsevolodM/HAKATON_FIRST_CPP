@@ -96,12 +96,25 @@ static void ForceFormatHeadings(System::SharedPtr<Document> doc) {
     }
 }
 
+static void SaveAsPdf(const System::String& docxPath, const System::String& pdfPath) {
+    System::SharedPtr<Document> doc;
+    if (!TryOpenDocument(docxPath, doc)) {
+        throw System::Exception(u"Не удалось открыть документ для конвертации в PDF");
+    }
+
+    // Сохраняем в PDF
+    doc->Save(pdfPath, SaveFormat::Pdf);
+}
+
 static void ForceFormatAllTables(System::SharedPtr<Document> doc) {
     System::SharedPtr<NodeCollection> tables = doc->GetChildNodes(NodeType::Table, true);
 
     for (int i = 0; i < tables->get_Count(); ++i) {
         System::SharedPtr<Table> table = System::ExplicitCast<Table>(tables->idx_get(i));
         if (!table) continue;
+
+        // Выравниваем таблицу по центру страницы
+        table->set_Alignment(TableAlignment::Center);
 
         for (int rowIdx = 0; rowIdx < table->get_Rows()->get_Count(); ++rowIdx) {
             System::SharedPtr<Row> row = table->get_Rows()->idx_get(rowIdx);
@@ -111,12 +124,14 @@ static void ForceFormatAllTables(System::SharedPtr<Document> doc) {
                 System::SharedPtr<Cell> cell = row->get_Cells()->idx_get(cellIdx);
                 if (!cell) continue;
 
+                cell->get_CellFormat()->set_VerticalAlignment(CellVerticalAlignment::Center);
+
                 System::SharedPtr<NodeCollection> paragraphs = cell->GetChildNodes(NodeType::Paragraph, true);
                 for (int paraIdx = 0; paraIdx < paragraphs->get_Count(); ++paraIdx) {
                     System::SharedPtr<Paragraph> para = System::ExplicitCast<Paragraph>(paragraphs->idx_get(paraIdx));
                     if (!para) continue;
 
-                    para->get_ParagraphFormat()->set_Alignment(ParagraphAlignment::Left);
+                    para->get_ParagraphFormat()->set_Alignment(ParagraphAlignment::Center);
 
                     System::SharedPtr<NodeCollection> runs = para->GetChildNodes(NodeType::Run, true);
                     for (int runIdx = 0; runIdx < runs->get_Count(); ++runIdx) {
@@ -220,9 +235,9 @@ static void ApplyDocumentFormatting(System::SharedPtr<Document> doc) {
         }
 
         // Форматирование абзаца (отступы и межстрочный интервал)
-        para->get_ParagraphFormat()->set_FirstLineIndent(35.43); // Отступ первой строки (1.25 см)
+        para->get_ParagraphFormat()->set_FirstLineIndent(35.43);
         para->get_ParagraphFormat()->set_LineSpacingRule(LineSpacingRule::Multiple);
-        para->get_ParagraphFormat()->set_LineSpacing(18); // Межстрочный интервал (1.5 строки)
+        para->get_ParagraphFormat()->set_LineSpacing(18);
     }
 
     // 4. Жесткое форматирование таблиц (оставляем как было)
@@ -232,10 +247,10 @@ static void ApplyDocumentFormatting(System::SharedPtr<Document> doc) {
     for (int i = 1; i < doc->get_Sections()->get_Count(); ++i) {
         System::SharedPtr<Section> section = doc->get_Sections()->idx_get(i);
         System::SharedPtr<PageSetup> setup = section->get_PageSetup();
-        setup->set_LeftMargin(30);   // 3 см (30 мм)
-        setup->set_RightMargin(10);  // 1 см (10 мм)
-        setup->set_TopMargin(20);    // 2 см (20 мм)
-        setup->set_BottomMargin(20); // 2 см (20 мм)
+        setup->set_LeftMargin(30);
+        setup->set_RightMargin(10);
+        setup->set_TopMargin(20);
+        setup->set_BottomMargin(20);
     }
 }
 
@@ -266,6 +281,7 @@ int main() {
     System::String inputPath = u"D:\\Profiles\\Acer\\Desktop\\itogg.docx";
     System::String tempPath = System::IO::Path::Combine(System::IO::Path::GetTempPath(), u"temp_laba.docx");
     System::String outputPath = u"D:\\Profiles\\Acer\\Desktop\\laba_processed.docx";
+    System::String pdfOutputPath = u"D:\\Profiles\\Acer\\Desktop\\laba_processed.pdf";
 
     try {
         System::IO::File::Copy(inputPath, tempPath, true);
@@ -279,12 +295,17 @@ int main() {
 
         ApplyDocumentFormatting(doc);
 
+        // Сохраняем в DOCX
         doc->Save(outputPath);
+
+        // Сохраняем в PDF
+        SaveAsPdf(outputPath, pdfOutputPath);
 
         System::IO::File::Delete(tempPath);
 
-        std::cout << "Документ успешно обработан и сохранен как: "
-            << outputPath.ToUtf8String() << std::endl;
+        std::cout << "Документ успешно обработан и сохранен:\n"
+            << "DOCX: " << outputPath.ToUtf8String() << "\n"
+            << "PDF:  " << pdfOutputPath.ToUtf8String() << std::endl;
     }
     catch (const System::Exception& ex) {
         std::cerr << "Критическая ошибка: " << ex->get_Message().ToUtf8String() << std::endl;
