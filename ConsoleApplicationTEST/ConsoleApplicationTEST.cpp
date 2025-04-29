@@ -52,7 +52,7 @@ static void CheckDocumentFormatting(System::SharedPtr<Document> doc, const Syste
 static void SaveAsPdf(const System::String& docxPath, const System::String& pdfPath);
 
 static void ForceFormatHeadings(System::SharedPtr<Document> doc) {
-    // 1. Обновляем стили заголовков
+    // Обновляем стили заголовков
     {
         // Стиль Heading1
         System::SharedPtr<Style> heading1 = doc->get_Styles()->idx_get(StyleIdentifier::Heading1);
@@ -77,7 +77,7 @@ static void ForceFormatHeadings(System::SharedPtr<Document> doc) {
         }
     }
 
-    // 2. Принудительно применяем стили ко всем заголовкам
+    // Принудительно применяем стили ко всем заголовкам
     System::SharedPtr<NodeCollection> paragraphs = doc->GetChildNodes(NodeType::Paragraph, true);
     for (int i = 0; i < paragraphs->get_Count(); ++i) {
         System::SharedPtr<Paragraph> para = System::ExplicitCast<Paragraph>(paragraphs->idx_get(i));
@@ -213,17 +213,17 @@ static void FormatTitlePageText(System::SharedPtr<Document> doc) {
 }
 
 static void ApplyDocumentFormatting(System::SharedPtr<Document> doc) {
-    // 1. Жесткое форматирование заголовков
+    // Жесткое форматирование заголовков
     ForceFormatHeadings(doc);
 
-    // 2. Установка базового стиля Normal (Times New Roman, 14pt)
+    // Установка базового стиля Normal (Times New Roman, 14pt)
     System::SharedPtr<Style> normalStyle = doc->get_Styles()->idx_get(u"Normal");
     if (normalStyle) {
         normalStyle->get_Font()->set_Name(u"Times New Roman");
         normalStyle->get_Font()->set_Size(14);
     }
 
-    // 3. Форматирование обычного текста
+    // Форматирование обычного текста
     System::SharedPtr<NodeCollection> paragraphs = doc->GetChildNodes(NodeType::Paragraph, true);
     for (int i = 0; i < paragraphs->get_Count(); ++i) {
         System::SharedPtr<Paragraph> para = System::ExplicitCast<Paragraph>(paragraphs->idx_get(i));
@@ -255,10 +255,10 @@ static void ApplyDocumentFormatting(System::SharedPtr<Document> doc) {
         para->get_ParagraphFormat()->set_LineSpacing(18);
     }
 
-    // 4. Жесткое форматирование таблиц (оставляем как было)
+    // Жесткое форматирование таблиц (оставляем как было)
     ForceFormatAllTables(doc);
 
-    // 5. Настройка полей страниц (кроме титульной)
+    // Настройка полей страниц (кроме титульной)
     for (int i = 1; i < doc->get_Sections()->get_Count(); ++i) {
         System::SharedPtr<Section> section = doc->get_Sections()->idx_get(i);
         System::SharedPtr<PageSetup> setup = section->get_PageSetup();
@@ -618,10 +618,8 @@ int main() {
         }
         catch (...) {}
 
-        // Универсальный способ вывода сообщения об ошибке
         std::cerr << "Ошибка: ";
         try {
-            // Попробуем разные варианты доступа к сообщению
             std::cerr << "Ошибка: " << ex->get_Message().ToUtf8String() << std::endl;
         }
         catch (...) {
